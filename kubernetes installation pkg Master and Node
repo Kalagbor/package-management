@@ -1,0 +1,27 @@
+#Switch as root user
+sudo su -
+#Update the repositories and install the required packages
+apt-get update -y
+apt-get install -y apt-transport-https 
+curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add -
+cat <<EOF >/etc/apt/sources.list.d/kubernetes.list
+deb https://apt.kubernetes.io/ kubernetes-xenial main
+EOF
+apt-get update -y
+
+
+#Turn off swap 
+swapoff -a
+sed -i '/ swap / s/^\(.*\)$/#\1/g' /etc/fstab
+ 
+#Install container runtime - **docker**
+apt install docker.io -y
+systemctl restart docker
+systemctl enable docker.service
+
+#Install kubeadm and kubelet
+apt-get install -y kubelet kubeadm kubectl kubernetes-cni
+# enable and start kubelet service
+systemctl daemon-reload 
+systemctl start kubelet 
+systemctl enable kubelet.service
